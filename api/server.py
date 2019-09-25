@@ -79,6 +79,6 @@ class mysql:
         return length + pck_num + data
 
 
-
-ser = mysql('127.0.0.1', 3307, 1)
-ser.start()
+if "__name__" == "__main__":
+    ser = mysql('127.0.0.1', 3307, 1)
+    ser.start()
