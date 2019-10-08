@@ -11,7 +11,7 @@ def rand_str(num):
     down = "1" + ("00" * (num - 1))
     # print(down, up)
     # return bytes.fromhex(str(hex(random.randint(int(down, 16), int(up, 16))))[2:])
-    return "\x34" * num
+    return b"\x34" * num
 
 def str_hex(string):
     return ''.join(['%02x' % x for x in string])
@@ -75,7 +75,7 @@ class mysql:
 
         return length + pck_num + data
     def main(self, conn, addr):
-        try:
+        # try:
             data = self.greet()
             # print(str_hex(data))
             conn.send(data)
@@ -92,11 +92,11 @@ class mysql:
             print(conn.recv(1024))
             print("*" * 88)
             conn.close()
-        except Exception as e:
-            print("*" * 88)
-            print("addr: ", addr)
-            print(e)
-            print("*" * 88)
+        # except Exception as e:
+        #     print("*" * 88)
+        #     print("addr: ", addr)
+        #     print(e)
+        #     print("*" * 88)
 
 
 if "__name__" == "__main__":
