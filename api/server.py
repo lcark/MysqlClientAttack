@@ -4,7 +4,6 @@ import binascii
 import struct
 import os
 from threading import Thread
-from pwn import *
 from time import *
 
 info = {}
