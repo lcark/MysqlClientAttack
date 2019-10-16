@@ -27,7 +27,7 @@ def save_result():
 
 def save_sched():
     scheduler = BlockingScheduler()
-    scheduler.add_job(save_result, 'interval', seconds=5)
+    scheduler.add_job(save_result, 'interval', seconds=60)
     scheduler.start()
 
 

@@ -1,6 +1,7 @@
 installation
 ===================
 ```cmd
+pip install -r requirements.txt
 git clone https://github.com/lcark/MysqlClientAttack.git
 ```
 usage
