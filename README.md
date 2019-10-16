@@ -8,7 +8,7 @@ usage
 ```bash
 usage: main.py [-h] [-l ADDR] [-p PORT] [-f FILE]
 
-mysql client attack
+mysql client attack, output will be saved in result
 
 optional arguments:
   -h, --help  show this help message and exit

@@ -5,6 +5,7 @@ import struct
 import os
 from threading import Thread
 from time import *
+import os
 
 info = {}
 
@@ -30,9 +31,16 @@ class mysql:
         ss.bind((self.addrress, self.port))
         ss.listen(self.count)
         while True:
-            conn, addr = ss.accept()
-            t = Thread(target = self.main, args = (conn, addr[0]))
-            t.start()
+            try:
+                conn, addr = ss.accept()
+                t = Thread(target = self.main, args = (conn, addr[0]))
+                t.start()
+            except KeyboardInterrupt:
+                f = open("result", "a")
+                f.write(str(info))
+                f.close()
+                os._exit(1)
+
 
 
     def greet(self):
@@ -79,7 +87,7 @@ class mysql:
     def main(self, conn, addr):
         fileNum = 0
         if addr in info.keys():
-            fileNum = len(info[addr]) % 3
+            fileNum = len(info[addr]) % len(self.files)
         filename = self.files[fileNum]
         data = self.greet()
         conn.send(data)
@@ -99,7 +107,7 @@ class mysql:
         print(data)
         print("*" * 88)
         conn.close()
-        print(info)
+        
 
 
 if "__name__" == "__main__":
